@@ -1,0 +1,7 @@
+data/
+runs/
+work/
+.venv/
+__pycache__/
+*.pyc
+*.tar.gz

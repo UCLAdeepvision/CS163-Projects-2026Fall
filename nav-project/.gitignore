@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+*.pt
+*.onnx
+*.tar
+*.tar.gz
+mini-project-nav/data/
+mini-project-nav/clips/
+mini-project-nav/runs/
+mini-project-nav/results/
+mini-project-nav/videos/
+# the scene folders come from nav-assets.tar (unpack_files.py); dev.json stays in git
+mini-project-nav/evaluation-scenes/*/

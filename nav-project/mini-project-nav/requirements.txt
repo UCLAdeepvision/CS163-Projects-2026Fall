@@ -1,0 +1,16 @@
+numpy
+scipy
+pillow
+opencv-python-headless
+imageio
+imageio-ffmpeg
+plyfile
+trimesh
+python-fcl
+rtree
+onnx
+onnxruntime
+efficientnet_pytorch
+torch
+viser
+yourdfpy

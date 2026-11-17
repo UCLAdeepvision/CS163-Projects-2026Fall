@@ -1,0 +1,8 @@
+# For Google Colab: PyTorch, numpy, scipy, matplotlib, pillow and OpenCV are already installed there. The rest:
+gsplat==1.5.3
+lpips
+plyfile
+imageio
+imageio-ffmpeg
+ninja
+packaging

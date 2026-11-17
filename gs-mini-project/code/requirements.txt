@@ -1,0 +1,16 @@
+# Install PyTorch FIRST (see Section 1 of the project PDF), then:  pip install -r requirements.txt
+# Tested with Python 3.12, torch 2.8.0+cu128, CUDA 12.x driver, RTX 4090 (24 GB). Any GPU with >= 12 GB should work.
+numpy
+scipy
+pillow
+tqdm
+packaging
+ninja
+gsplat==1.5.3
+lpips
+plyfile
+imageio
+imageio-ffmpeg
+matplotlib
+opencv-python-headless
+transformers>=4.45
