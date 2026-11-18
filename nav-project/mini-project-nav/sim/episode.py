@@ -32,7 +32,7 @@ TAU_SPEED = 0.25            # s, time constant of the speed lag
 MIN_STEERING_SPEED = 0.1    # m/s: below this speed a yaw rate command is ignored and the steering angle is left as it is
 
 # Episode rules
-SUCCESS_RADIUS = 0.5        # m of route left to cover; at or below this the episode is a success
+SUCCESS_RADIUS = 1.0        # m: the episode is a success when the center of the robot is this close to the end of the route
 FREEZE_WINDOW = 5.0         # s
 FREEZE_PROGRESS = 0.1       # m of route progress required per FREEZE_WINDOW, otherwise the episode ends
 MIN_TIME_LIMIT = 45.0       # s
@@ -188,7 +188,7 @@ class Episode:
 
     def _check_end(self):
         s = self.state
-        if self.route_len - self.progress <= SUCCESS_RADIUS:
+        if self.goal_distance() <= SUCCESS_RADIUS:
             self.done, self.reason = True, "goal reached"
         elif self.collisions > 0:
             self.done, self.reason = True, "collision"
@@ -203,8 +203,7 @@ class Episode:
 
     def result(self):
         success = self.reason == "goal reached"
-        completion = 1.0 if success else float(np.clip(self.progress / self.route_len, 0.0, 1.0))
-        return dict(scene=self.scene.id, route=self.spec["route_id"], success=success, route_completion=round(completion, 3),
+        return dict(scene=self.scene.id, route=self.spec["route_id"], success=success,
                     collisions=int(self.collisions), time=round(self.t, 2), path_length=round(self.path_len, 2), reason=self.reason)
 
 
@@ -217,10 +216,8 @@ def summarize(results):
     """Benchmark summary of a list of episode results.
 
     score             percentage of the episodes that reached the goal without a collision (this is the number that counts)
-    route_completion  mean fraction of the route covered, for information
     collision_rate    fraction of the episodes that ended in a collision, for information
     """
     n = max(len(results), 1)
     return dict(score=round(100 * sum(episode_score(r) for r in results) / n, 2),
-                route_completion=round(sum(r["route_completion"] for r in results) / n, 3),
                 collision_rate=round(sum(r["collisions"] > 0 for r in results) / n, 3), episodes=len(results))

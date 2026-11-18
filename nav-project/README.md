@@ -2,6 +2,8 @@
 
 In this mini project you will create a navigation model for a sidewalk delivery robot and test it closed-loop in a 3D Gaussian splatting (3DGS) simulator. We have given you access to around ten hours of data logged from the delivery robot your model will control, and you are welcome to use additional data. Coding agents are allowed.
 
+<p align="center"><img src="figs/fig_top.jpg" width="100%" alt="The robot driving two routes in the simulator: third-person view with the robot's camera and its predicted path as an inset"></p>
+
 You are encouraged to come up with your own ideas for this project. To help you, we have included some starter code for fine-tuning ViNT, a foundation navigation model, on the training data, but you are free to do whatever you want.
 
 To get full credit on this project, you need to satisfy one of the following: either improve the success rate on the development benchmark by at least 10 percentage points compared to the model that is your starting point (for example, if it succeeds 25% of the time, yours needs to reach at least 35%), or achieve an overall success rate of at least 75% on the development benchmark. Additionally, the top 20% of models on the held-out testing benchmark will receive some extra credit (you will not be penalized if your model does not perform well on the testing benchmark).
@@ -10,14 +12,20 @@ You will need to submit your model (as an ONNX file) and a brief report about th
 
 ## 1. Setup
 
-The easiest way to do this project is in Google Colab. Clone the repository on your computer, save `nav-assets.tar` and `processed-data.tar` in the `nav-project` folder, upload the `nav-project` folder to your Google Drive, open `navigation_colab.ipynb` from there in Google Colab, and run it. It does the remaining steps below for you (install, `unpack_files.py` and `check_setup.py`).
+### 1.1 Download the data
 
-Here is the general version:
+Download `nav-assets.tar` and `processed-data.tar` from the [mini project data folder](https://drive.google.com/drive/folders/1km3DzPpZ_y62Htx7K5b6w7YrKi-w4rvE?usp=drive_link) on Google Drive. (`data.tar`, the raw clips, is optional: see Section 3.)
+
+### 1.2 Google Colab
+
+The easiest way to do this project is to use Google Colab, but that's not required. Clone the repository on your computer, put the data files in the `nav-project` folder, upload the `nav-project` folder to your Google Drive, open `navigation_colab.ipynb` from there in Google Colab, and run it. It does the remaining steps below for you (install, `unpack_files.py` and `check_setup.py`).
+
+### 1.3 Your own machine
 
 Python 3.10 to 3.13 on Linux or macOS is suggested. The simulator can run CPU-only, but training requires a GPU. Get the code and run everything in this document from inside the `mini-project-nav` folder:
 
 ```
-# save nav-assets.tar and processed-data.tar in the nav-project folder
+# the data files are in the nav-project folder
 cd nav-project/mini-project-nav
 python3 -m venv .venv
 source .venv/bin/activate
@@ -119,13 +127,11 @@ Your model doesn't need to use all of these inputs. For example, ViNT uses the g
 
 <b>Robot.</b> The simulated robot is the COCO delivery robot: 0.76 m long and 0.61 m wide, and it collides with the scene as a box of that size. It is car-like: it steers with its front axle and cannot turn in place. The tightest turn has a radius of about 1.25 m. Physics runs at 40 Hz and each command is held for ten physics steps.
 
-<b>Score.</b> The score is the percentage of episodes in which the robot reaches the goal without a collision. An episode succeeds when the robot is within 0.5 m of the end of the route, measured along the route. It fails at the first contact with the scene, when the robot leaves the walkable area, when it makes less than 10 cm of progress in 5 seconds, or at the time limit (2.5 seconds per meter of route, at least 45 seconds). The results file also reports route completion and collision rate.
+<b>Score.</b> The score is the percentage of episodes in which the robot reaches the goal without a collision. An episode succeeds when the center of the robot is within 1 m of the end of the route. It fails at the first contact with the scene, when the robot leaves the walkable area, when it makes less than 10 cm of progress in 5 seconds, or at the time limit (2.5 seconds per meter of route, at least 45 seconds). The results file also reports the collision rate.
 
 Keep in mind that the simulator is mostly but not entirely deterministic.
 
 ## 5. Running the Evaluation
-
-The pre-trained ViNT model scores around 9.4 on the development episodes.
 
 ```
 # the original model
@@ -138,6 +144,8 @@ python evaluate.py --policy code/policy.py --save_video videos/original
 ```
 
 The script prints one line per episode and a summary, and writes `results/policy.json`. With `--save_video`, each episode is a first-person video showing the predicted trajectory (green), the arc the robot is driving (orange), the route (white) and the goal image (top right).
+
+<p align="center"><img src="figs/nav_failure.gif" width="60%" alt="A model leaving the sidewalk"></p>
 
 Rendering uses an NVIDIA GPU if available and the CPU otherwise.
 
@@ -198,7 +206,7 @@ To export a ViNT that you changed (for example with extra layers), or a differen
 
 Check the file with `python check_submission.py submission.onnx`, and score it as the graders will with `python evaluate.py --policy code/onnx_policy.py --onnx submission.onnx`.
 
-Submit a zip file named `nav.zip` containing `submission.onnx`, your report, and all of the code that you edited or created in a folder called `code/`. The model file must pass `check_submission.py`: one file of at most 1 GB and no external weight files. To be considered for extra credit, your model should be compatible with ONNX Runtime 1.32.0, since that is what will be used for testing.
+Submit a zip file named `nav.zip` on Bruin Learn by <b>December 11th</b> containing `submission.onnx`, your report, and all of the code that you edited or created in a folder called `code/`. The model file must pass `check_submission.py`: one file of at most 1 GB and no external weight files. To be considered for extra credit, your `submission.onnx` must work in the provided Colab notebook, without any changes to the simulator or `onnx_policy.py`.
 
 | part | points | requirement |
 |---|---|---|
@@ -209,7 +217,7 @@ Submit a zip file named `nav.zip` containing `submission.onnx`, your report, and
 
 <b>Report.</b> The report contains:
 
-- Results (success rate, route completion, collision rate) for your final model and the other models you tried. (20 points)
+- Results (success rate, collision rate) for your final model and the other models you tried. (20 points)
 - Three or more experiments, each changing one factor (for example which weights are trained, the learning rate, the number of goal steps, or the loss), with scores and an explanation of the behavior. (10 points)
 - A failure analysis of the episodes your best model still fails, based on the videos (`--save_video`): what goes wrong (for example cutting a corner, drifting off the sidewalk, or stopping) and what the model appears to be missing. Include two or three screenshots from the videos. (10 points)
 

@@ -366,7 +366,7 @@ class Viewer:
 
     def summary(self):
         s = summarize(self.results)
-        return (f"**Score {s['score']:.1f}** (reached the goal without a collision), route completion {100 * s['route_completion']:.0f}%, "
+        return (f"**Score {s['score']:.1f}** (reached the goal without a collision), "
                 f"{100 * s['collision_rate']:.0f}% of the episodes ended in a collision ({s['episodes']} episodes)")
 
 

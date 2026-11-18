@@ -1,6 +1,9 @@
 # Mini Project: 3D Gaussian Splatting
 
-In this project you will train 3D Gaussian splatting (3DGS) models and test your own ideas for improving on baseline implementations. You are encouraged to be creative, especially in Part 4, and you may use coding agents (see the rules in Section 4).
+In this project you will explore 3D Gaussian Splatting (3DGS), which allows you to convert images into 3D scenes you can view from any angle, and test your own ideas for improving on baseline implementations. You are encouraged to be creative, especially in Part 4, and you may use coding agents (see the rules in Section 4).
+
+<p align="center"><img src="figs/street_render.jpg" width="49%" alt="A render of a 3D Gaussian splatting model of a city street corner"> <img src="figs/arcade_render.jpg" width="49%" alt="A render of a 3D Gaussian splatting model of a covered arcade"></p>
+<p align="center"><sub>Renders from two 3D Gaussian splatting scenes of real places.</sub></p>
 
 ## 1. Background: how 3D Gaussian splatting works
 
@@ -97,9 +100,13 @@ References: B. Kerbl, G. Kopanas, T. Leimkühler, G. Drettakis, <i>3D Gaussian S
 
 ## 2. Setup
 
-The easiest way to do this project is in Google Colab.
+### 2.1 Download the data
 
-### 2.1 Google Colab
+Download the four data files (`part1.tar.gz` to `part4.tar.gz`) from the [mini project data folder](https://drive.google.com/drive/folders/1km3DzPpZ_y62Htx7K5b6w7YrKi-w4rvE?usp=drive_link) on Google Drive.
+
+### 2.2 Google Colab
+
+The easiest way to do this project is to use Google Colab, but that's not required.
 
 1. Upload the folder `gs-mini-project` to your Google Drive.
 2. Upload the data files (`part1.tar.gz` to `part4.tar.gz`) to the folder `gs-mini-project` in your Google Drive, so that it looks like this (change `DRIVE` in the first code cell if you use another folder name):
@@ -114,7 +121,7 @@ The easiest way to do this project is in Google Colab.
 4. Runtime → Change runtime type → <b>T4 GPU</b> (an A100 could also work) and, under <b>Runtime version, choose 2026.07</b>. This matches the precompiled gsplat, so you do not wait for a long compile.
 5. Run the cells of `gs.ipynb` from top to bottom.
 
-### 2.2 Your own machine or a VM
+### 2.3 Your own machine or a VM
 
 You need Linux (x86-64) with an NVIDIA GPU, Python 3.12 (the version we tested; 3.10 and 3.11 should work), and PyTorch with CUDA 12.x (tested with PyTorch 2.8 and 2.11, both `cu128`). Put the data files (`part1.tar.gz` to `part4.tar.gz`) in the folder `gs-mini-project`, next to `code/`.
 
@@ -129,11 +136,11 @@ python check_setup.py
 
 `check_setup.py` verifies Python, PyTorch and CUDA, that gsplat can be built (see below), a differentiable gsplat render (this triggers the one-time compile), the LPIPS weights, the other packages, and that the data folders are present. The data folder can be anywhere: set the environment variable `GS_DATA_DIR`. The notebook can also be used on your machine: put the files of the table above (the wheel is not needed) in the folder of the notebook, or set `GS_DRIVE` to the folder that has them, and start Jupyter in this environment.
 
-### 2.3 Building gsplat (once, on your own machine or VM)
+### 2.4 Building gsplat (once, on your own machine or VM)
 
 <b>On Google Colab you do not need to build anything:</b> the course folder contains a prebuilt gsplat wheel for Colab (runtime version 2026.07), and the notebook installs it.
 
-On your own machine or a VM, first check whether a prebuilt gsplat wheel exists for your Python, PyTorch and CUDA versions. gsplat publishes wheels at `docs.gsplat.studio/whl`, but only for PyTorch 2.0 to 2.4 and Python 3.10. For PyTorch 2.8, the version of Section 2.2, there is none, so <b>you need to build gsplat yourself</b>. gsplat compiles its CUDA code the first time it is imported (`check_setup.py` does it for you). You do this once per PyTorch version and GPU type; the result is cached in `~/.cache/torch_extensions` (set `TORCH_EXTENSIONS_DIR` to keep it elsewhere). To build it you need:
+On your own machine or a VM, first check whether a prebuilt gsplat wheel exists for your Python, PyTorch and CUDA versions. gsplat publishes wheels at `docs.gsplat.studio/whl`, but only for PyTorch 2.0 to 2.4 and Python 3.10. For PyTorch 2.8, the version of Section 2.3, there is none, so <b>you need to build gsplat yourself</b>. gsplat compiles its CUDA code the first time it is imported (`check_setup.py` does it for you). You do this once per PyTorch version and GPU type; the result is cached in `~/.cache/torch_extensions` (set `TORCH_EXTENSIONS_DIR` to keep it elsewhere). To build it you need:
 
 - the <b>CUDA toolkit</b> (`nvcc` and the development headers) whose major version equals PyTorch's CUDA version. Check with `python -c "import torch; print(torch.version.cuda)"` (for example 12.8), and install that toolkit from [NVIDIA](https://developer.nvidia.com/cuda-toolkit-archive). If it is not in `/usr/local/cuda`, point `CUDA_HOME` to it;
 - a C++ compiler (`g++`; on Ubuntu `sudo apt install build-essential`) and `ninja` (`pip install ninja`, already in `requirements.txt`).
@@ -172,7 +179,7 @@ code/
   part2/               train.py, depth_losses.py (you complete), check_losses.py, gen_depth.py
   part3/               train.py, check_goal.py
   part4/               train.py, check_goal.py
-  data/                 (from the data archives, Section 2.2)
+  data/                 (from the data archives, Section 2.3)
     part1_garden/  part2_room/  part3_wanderland/  part4_robot/
 ```
 
@@ -185,6 +192,8 @@ Read `gsmini/gs.py` once: it is about 300 lines and contains the whole 3DGS trai
 - Do not edit `gsmini/` (use the callbacks). If you think you found a bug, tell us.
 
 ## 5. Part 1: environment and baseline
+
+<p align="center"><img src="figs/fig_train_part1.jpg" width="100%" alt="Four training photos of the Part 1 scene"></p>
 
 Get started: install everything and train your first 3D Gaussian splatting model.
 
@@ -212,6 +221,8 @@ Get started: install everything and train your first 3D Gaussian splatting model
 You should get a PSNR of around 26.0.
 
 ## 6. Part 2: few views and a monocular depth prior
+
+<p align="center"><img src="figs/fig_train_part2.jpg" width="100%" alt="Four training photos of the Part 2 scene"></p>
 
 12 training photos of an indoor room is very sparse for training 3DGS. You will use the <em>Depth Anything V2</em> depth network as a geometric prior and measure how much it helps on held-out views.
 
@@ -247,6 +258,8 @@ A monocular depth network predicts a dense, sharp depth map for a single image, 
 Your depth-prior run needs to improve on the baseline by at least 1.0 dB PSNR on the held-out views.
 
 ## 7. Part 3: a better training recipe for a street scene
+
+<p align="center"><img src="figs/fig_train_part3.jpg" width="100%" alt="Four training photos of the Part 3 scene"></p>
 
 Reconstruct a street from a handheld two-camera capture. The baseline of Part 1 works well on a dense capture like the garden, but here it renders views from another trajectory poorly. You do not add any data or any loss in this part. You change <em>how the model is trained</em>.
 
@@ -301,6 +314,8 @@ python part3/check_goal.py --baseline runs/p3_base --mine runs/p3_best
 
 ## 8. Part 4: a real robot
 
+<p align="center"><img src="figs/fig_train_part4.jpg" width="100%" alt="Four training photos of the Part 4 scene"></p>
+
 A delivery robot drove the same sidewalk route twice. From the first drive (a front camera plus a LiDAR) you reconstruct the scene with 3D Gaussian splatting, and the model is judged on <b>images from the second drive</b>: new viewpoints, a different time, up to about a metre and a half away from anything the model saw. The baseline is plain 3DGS, started from randomly placed Gaussians because no initial point cloud is provided. You must reach an <b>LPIPS of at most 0.58</b> on the second drive; the baseline gets about 0.62. LPIPS measures how different a render looks from the real photo, so <b>lower is better</b>.
 
 ### Data
@@ -350,7 +365,7 @@ You can scan a real-world environment, build a 3DGS model of it, and drive a rob
 
 ### Submission
 
-Submit one zip file named `gs.zip` containing:
+Submit one zip file named `gs.zip` on Bruin Learn by <b>December 11th</b> containing:
 
 - your entire code directory (`code/`, with your changes), <b>but without the data and without the model checkpoints (</b>`gaussians.pt`<b>)</b>
 - renders from your best 3DGS model in each part
@@ -361,7 +376,7 @@ Submit one zip file named `gs.zip` containing:
 
 | problem | remedy |
 |---|---|
-| `torch.cuda.is_available()` is False | install the CUDA build of PyTorch (the command in Section 2.2) and check `nvidia-smi`; on Colab, choose a GPU runtime |
+| `torch.cuda.is_available()` is False | install the CUDA build of PyTorch (the command in Section 2.3) and check `nvidia-smi`; on Colab, choose a GPU runtime |
 | gsplat compile fails or hangs | try to use a pre-built wheel; we provide one that works with Colab |
 | gsplat compile error mentioning the CUDA version | the CUDA toolkit's major version must equal PyTorch's (`torch.version.cuda`): install a matching toolkit and `export CUDA_HOME=/usr/local/cuda-12.8` (or wherever it is) |
 | Colab: "This runtime has Python 3.13 ..." or a long compile | the precompiled gsplat is for runtime version 2026.07: Runtime → Change runtime type → Runtime version, then run the notebook again from the top |

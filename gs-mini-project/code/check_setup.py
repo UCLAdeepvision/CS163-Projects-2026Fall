@@ -54,7 +54,7 @@ def build_tools():
     if not shutil.which("ninja"):
         problems.append("ninja not found: pip install ninja")
     if problems:
-        raise RuntimeError("gsplat has to be compiled on this machine (once), and:\n         - " + "\n         - ".join(problems) + "\n         (see Section 2.3 of the project PDF, \"Building gsplat\")")
+        raise RuntimeError("gsplat has to be compiled on this machine (once), and:\n         - " + "\n         - ".join(problems) + "\n         (see Section 2.4 of the project PDF, \"Building gsplat\")")
     cores = os.cpu_count() or 2
     try:
         mem_gb = int(re.search(r"MemTotal:\s+(\d+)", open("/proc/meminfo").read()).group(1)) / 2**20

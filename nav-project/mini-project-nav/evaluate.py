@@ -56,7 +56,7 @@ def main():
                 video.finish(result)
             result["episode"] = index
             results.append(result)
-            print(f"{scene_id:28s} {index}  {'ok  ' if result['success'] else 'FAIL'}  completion {result['route_completion']:.2f}  "
+            print(f"{scene_id:28s} {index}  {'ok  ' if result['success'] else 'FAIL'}  "
                   f"collisions {result['collisions']}  {result['time']:5.1f}s  {result['reason']}   [{time.time() - start:.0f}s]", flush=True)
 
     summary = summarize(results)
